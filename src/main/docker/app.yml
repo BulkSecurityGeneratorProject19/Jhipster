@@ -1,0 +1,24 @@
+version: '2'
+services:
+    shopparas-app:
+        image: shopparas
+        environment:
+            - SPRING_PROFILES_ACTIVE=prod,swagger
+            - SPRING_DATA_CASSANDRA_CONTACTPOINTS=shopparas-cassandra
+            - JHIPSTER_SLEEP=30 # gives time for the Cassandra cluster to start and execute the migration scripts
+        ports:
+            - 8080:8080
+    shopparas-cassandra:
+        extends:
+            file: cassandra-cluster.yml
+            service: shopparas-cassandra
+    shopparas-cassandra-node:
+        image: cassandra:3.9
+        environment:
+            - CASSANDRA_SEEDS=shopparas-cassandra
+    shopparas-cassandra-migration:
+        extends:
+            file: cassandra-migration.yml
+            service: shopparas-cassandra-migration
+        environment:
+            - CREATE_KEYSPACE_SCRIPT=create-keyspace-prod.cql
